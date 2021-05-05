@@ -8,19 +8,9 @@ def crossover_permutation(next_individual: Iterator) -> Iterator:
         parent1: Individual = next(next_individual)
         parent2: Individual = next(next_individual)
 
-        genome_offspring1, genome_offspring2 = crossover_genome_permutation(parent1.genome, parent2.genome)
+        genome_offspring1, genome_offspring2 = order_crossover(parent1.genome, parent2.genome)
         yield Individual(genome_offspring1, decoder=parent1.decoder, problem=parent1.problem)
         yield Individual(genome_offspring2, decoder=parent1.decoder, problem=parent1.problem)
-
-
-def crossover_genome_permutation(genome_fst: List, genome_snd: List):
-    g_categories_fst, g_slots_fst = separate_genome(genome_fst)
-    g_categories_snd, g_slots_snd = separate_genome(genome_snd)
-
-    g_cat_offspring_fst, g_cat_offspring_snd = order_crossover(g_categories_fst, g_categories_snd)
-
-    return merge_genome(g_cat_offspring_fst, g_slots_fst), \
-        merge_genome(g_cat_offspring_snd, g_slots_snd)
 
 
 def order_crossover(g_fst: List[Any], g_snd: List[Any]) -> Tuple[List[Any], List[Any]]:
@@ -64,29 +54,3 @@ def get_cycles(g_fst: List[Any], g_snd: List[Any]) -> List[List[int]]:
         cycles.append(cycle)
 
     return cycles
-
-
-def separate_genome(genome: List) -> Tuple[List, List]:
-    counter = 0
-    g_categories: List[str] = list()
-    g_slots: List[int] = list()
-    for chromosome in genome:
-        if chromosome == "|":
-            g_slots.append(counter)
-        else:
-            g_categories.append(chromosome)
-        counter += 1
-
-    return g_categories, g_slots
-
-
-def merge_genome(g_categories: List[str], g_slots: List[int]) -> List:
-    """
-    TODO: Beware of returning the string from input and modifying the input
-    :param g_categories:
-    :param g_slots:
-    :return:
-    """
-    for slot_position in g_slots:
-        g_categories.insert(slot_position, "|")
-    return g_categories

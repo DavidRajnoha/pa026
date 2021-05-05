@@ -133,7 +133,8 @@ class RaceProblem(Problem):
         The evaluation is based by the count of route constraints and first constraints
         """
         hard_constraints_score = self.evaluate_hard_constraints(phenom) * 100
-        time_score = 0  # (1 - phenom.efficiency()) * 100
+        # time_score = 0
+        time_score = (1 - phenom.efficiency()) * 100
         soft_constraints_score = 0
         return int(hard_constraints_score + time_score + soft_constraints_score)
 
@@ -183,7 +184,7 @@ class RaceDecoder(Decoder):
         slot = slots_iter.__next__()
 
         for chromosome in genome:
-            if chromosome == "|":
+            if isinstance(chromosome, int):
                 slot = slots_iter.__next__()
             elif isinstance(chromosome, Category):
                 # TODO: Change to category name and lookup in dict, possible numpy usage

@@ -12,8 +12,8 @@ def test_pipeline(race_basic):
 
 
 def test_pipeline_example(race_example):
-    random.seed(42)
+    random.seed(38)
     population = create_population(race_example, 40)
-    ga_pipeline(population)
+    ga_pipeline(population, 200)
 
     assert population

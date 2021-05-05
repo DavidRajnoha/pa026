@@ -9,14 +9,13 @@ from source.resources import Race
 
 def random_genome(race: Race) -> List:
     """
-    TODO: try to genarete the population in a less random manner - every slot should have at least one category
     :param race:
     :return:
     """
     genome: List = list(race.categories.values())
 
     for separator in range(race.concurrent_slots_limit * race.interval - 1):
-        genome.append('|')
+        genome.append(separator)
 
     random.shuffle(genome)
     return genome
