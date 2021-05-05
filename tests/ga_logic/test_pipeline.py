@@ -12,7 +12,7 @@ def test_pipeline(race_basic):
 
 
 def test_pipeline_example(race_example):
-    random.seed(38)
+    random.seed(39)
     population = create_population(race_example, 40)
     ga_pipeline(population, 200)
 
