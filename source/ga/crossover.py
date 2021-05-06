@@ -1,9 +1,17 @@
+"""
+Logic related to crossovers
+"""
 from typing import List, Any, Set, Tuple, Iterator
 
 from leap_ec.individual import Individual
 
 
 def crossover_permutation(next_individual: Iterator) -> Iterator:
+    """
+    Takes two individuals and makes a crossover using the order crossover function
+    :param next_individual:
+    :return:
+    """
     while True:
         parent1: Individual = next(next_individual)
         parent2: Individual = next(next_individual)
@@ -14,6 +22,10 @@ def crossover_permutation(next_individual: Iterator) -> Iterator:
 
 
 def order_crossover(g_fst: List[Any], g_snd: List[Any]) -> Tuple[List[Any], List[Any]]:
+    """
+    Crossover for the permutation representation
+    Identifies cycles in the lists and switches half of them between the parents.
+    """
     g_offspring_fst = [0 for _ in g_fst]
     g_offspring_snd = [0 for _ in g_fst]
 

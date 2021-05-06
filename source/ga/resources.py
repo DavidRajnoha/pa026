@@ -1,5 +1,9 @@
+"""
+The implementation of the Phenom, Problem and Decoder classes defined by the LEAP library
+"""
+
 import copy
-from typing import List, Tuple, Set, Dict
+from typing import List, Set, Dict
 from queue import PriorityQueue
 
 from leap_ec.problem import Problem
@@ -8,6 +12,12 @@ from source.resources import Race, Slot, Category, PrioritizedSlot
 
 
 class RacePhenom:
+    """
+    Representation of the particular solution.
+    Contains a list of slots with appended categories.
+    The slots with their offsets and categories are the solution to the problem)
+    Also provides statistics about the time optimality of the solution.
+    """
     def __init__(self, slots: List[Slot]):
         self.slots: List[Slot] = slots
 
@@ -37,7 +47,7 @@ class RacePhenom:
         return self.optimal_length() / self.total_length()
 
 
-def slots_overlapping(slots: List[Slot]) -> Set[frozenset]:
+def categories_start_times_overlapping(slots: List[Slot]) -> Set[frozenset]:
     """
     Constructs a set of sets of size two of categories that have overlapping start times,
     by iterating of the categories based on their start time
@@ -45,7 +55,7 @@ def slots_overlapping(slots: List[Slot]) -> Set[frozenset]:
     through all of the categories, for each adding the forbidden categories and there is slot of them.
 
     When given slots with the same offset, generates same first constrain, when given all slots,
-     generates same route constrained.
+    generates same route constrained.
 
     :param slots:
     :return: set of categories contained in the phenom that start in the same time
@@ -93,6 +103,8 @@ def slots_overlapping(slots: List[Slot]) -> Set[frozenset]:
 
 def construct_same_first_constrained(phenom: RacePhenom) -> Set[frozenset]:
     """
+    Separates the slots by their offset time and then returns a list of
+    categories with start time overlapping for each offset.
     """
     slots: List[Slot] = phenom.slots
     slots_by_offset: Dict[int, List[Slot]] = dict()
@@ -106,7 +118,7 @@ def construct_same_first_constrained(phenom: RacePhenom) -> Set[frozenset]:
     for offset in slots_by_offset:
         slots_same_offset = slots_by_offset[offset]
         constrained_offset: Set[frozenset] =\
-            slots_overlapping(slots_same_offset)
+            categories_start_times_overlapping(slots_same_offset)
         first_constrained = first_constrained.union(constrained_offset)
 
     return first_constrained
@@ -114,8 +126,9 @@ def construct_same_first_constrained(phenom: RacePhenom) -> Set[frozenset]:
 
 def construct_same_route_constrained(phenom: RacePhenom) -> Set[frozenset]:
     """
+    Returns a list of categories that can not have the same route, 
     """
-    return slots_overlapping(phenom.slots)
+    return categories_start_times_overlapping(phenom.slots)
 
 
 class RaceProblem(Problem):
@@ -132,10 +145,18 @@ class RaceProblem(Problem):
         Returns the evaluation for the given phenom
         The evaluation is based by the count of route constraints and first constraints
         """
-        hard_constraints_score = self.evaluate_hard_constraints(phenom) * 100
         # time_score = 0
         time_score = (1 - phenom.efficiency()) * 100
-        soft_constraints_score = 0
+        time_req_score = self.evaluate_specific_time(phenom)
+        same_start_req_score = self.evaluate_same_start_request(phenom) / 2
+        soft_constraints_score = time_score + time_req_score + same_start_req_score
+
+        # even 1 hard constraint has bigger weight then any combination of soft constraints
+        # the 100 limit is for better readability
+        hard_constr_coef = soft_constraints_score + 1 if soft_constraints_score > 100 else 100
+
+        hard_constraints_score = self.evaluate_hard_constraints(phenom) * hard_constr_coef
+
         return int(hard_constraints_score + time_score + soft_constraints_score)
 
     def evaluate_hard_constraints(self, phenom: RacePhenom) -> float:
@@ -166,19 +187,69 @@ class RaceProblem(Problem):
 
         return same_route_constrained_count + same_first_constrained_count
 
+    def evaluate_same_start_request(self, phenom: RacePhenom) -> int:
+        """
+        Each category can have a list of categories that should start at the same time.
+        This returns the number of such requests that are not fulfilled by the phenom
+        :param phenom:
+        :return:
+        """
+        start_times_overlapping = construct_same_route_constrained(phenom)
+        unfulfilled_requests = 0
+
+        for category in self.race.categories:
+            same_time_requested_categories = self.race.categories[category].same_time_request
+            for same_time_requested_category in same_time_requested_categories:
+                if frozenset({self.race.categories[category],
+                              same_time_requested_category}) not in start_times_overlapping:
+                    unfulfilled_requests += 1
+
+        return unfulfilled_requests
+
+    def evaluate_specific_time(self, phenom: RacePhenom) -> int:
+        """
+        Each category can have a list of times that the starting interval should span.
+        Returns a number of how many of these start times are not covered by the real category starting time
+        :param phenom:
+        :return:
+        """
+        unfulfilled_requests = 0
+
+        for slot in phenom.slots:
+            for category in slot.categories:
+                for request in category.specific_time_request:
+                    if not category.first_start_time <= request <= \
+                           category.first_start_time + category.num_entries * slot.interval:
+                        unfulfilled_requests += 1
+        return unfulfilled_requests
+
     def worse_than(self, first_fitness: int, second_fitness: int) -> bool:
+        """
+        Defines the order on the fitness score
+        """
         return first_fitness >= second_fitness
 
     def equivalent(self, first_fitness, second_fitness):
+        """
+        Defines the equivalence on the fitness score
+        """
         return first_fitness == second_fitness
 
 
 class RaceDecoder(Decoder):
+    """
+    Class decoding genome (List of categories and integers) to RacePhenom
+    """
 
     def __init__(self, race: Race):
         self.race: Race = race
 
     def decode(self, genome: List, *args, **kwargs) -> RacePhenom:
+        """
+        Takes a genome (list of categories and integers and converts it into phenom)
+        Iterates through a genome, adds each category to the active Slot and
+        for each separator takes a new slot and sets it as active.
+        """
         phenom = RacePhenom(copy.deepcopy(self.race.slots))
         slots_iter = iter(phenom.slots)
         slot = slots_iter.__next__()
@@ -188,6 +259,8 @@ class RaceDecoder(Decoder):
                 slot = slots_iter.__next__()
             elif isinstance(chromosome, Category):
                 # TODO: Change to category name and lookup in dict, possible numpy usage
-                slot.append(category=chromosome)
+                category: Category = chromosome
+                category.first_start_time = slot.length_better()
+                slot.append(category)
 
         return phenom

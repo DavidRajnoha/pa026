@@ -9,8 +9,9 @@ from source.ga import mutation, crossover
 
 def ga_pipeline(population: List[Individual], max_generation: int = 200) -> None:
     """
-    TODO: Optimization always converges to the best individual, but then it can get stuck on
-    TODO: the case when best == average it is waiting on suitable mutation to move it forward
+    Ground logic of the genetic algorithm.
+    Randomly initiates the population and then iteratively creates a new generation
+    of offsprings using mutations and crossovers and selects the best of offsprings and parents.
     :param population:
     :param max_generation:
     :return:

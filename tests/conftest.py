@@ -34,10 +34,16 @@ def race_basic():
 
     add_same_first_constraints(categories)
     add_same_route_constraints(categories)
+    add_same_start_constraints(categories)
 
     race: Race = Race(name="basic", id=1, categories=categories,
                       interval=2, concurrent_slots_limit=2)
     return race
+
+
+def add_same_start_constraints(categories):
+    categories["D12"].add_same_time_request(categories["D21"])
+    categories["D21"].add_same_time_request(categories["D12"])
 
 
 def add_same_route_constraints(categories: Dict[str, Category]):

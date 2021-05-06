@@ -1,4 +1,4 @@
-from source.ga.mutation import mutate_permutation, mutate_genome_switch
+from source.ga.mutation import mutate_genome_switch
 
 
 def test_mutate_genome(race_basic_genome):

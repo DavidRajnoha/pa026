@@ -1,3 +1,7 @@
+"""
+The logic related to the population creation
+"""
+
 import random
 from typing import List
 
@@ -9,6 +13,7 @@ from source.resources import Race
 
 def random_genome(race: Race) -> List:
     """
+    Creates a random genome by adding the separators to the categories and shuffling it.
     :param race:
     :return:
     """
