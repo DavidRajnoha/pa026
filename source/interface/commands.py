@@ -15,11 +15,14 @@ def cli():
 @click.option('--ignore_categories')
 @click.option('--interval')
 @click.option('--concurrent_slots')
+@click.option('--generations', default="200")
+@click.option('--initial_population', default="20")
 def schedule_categories_command(oris_id, course_definition, same_start_req, specific_time_req,
-                        ignore_categories, interval, concurrent_slots):
+                        ignore_categories, interval, concurrent_slots, generations, initial_population):
     ignore_categories_list = ignore_categories.split(",")
     schedule_categories(oris_id, course_definition, same_start_req, specific_time_req,
-                        ignore_categories_list, int(interval), int(concurrent_slots))
+                        ignore_categories_list, int(interval), int(concurrent_slots), int(generations),
+                        int(initial_population))
 
 
 cli.add_command(schedule_categories_command)
