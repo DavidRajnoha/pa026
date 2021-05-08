@@ -3,6 +3,7 @@ The implementation of the Phenom, Problem and Decoder classes defined by the LEA
 """
 
 import copy
+import json
 from typing import List, Set, Dict
 from queue import PriorityQueue
 
@@ -45,6 +46,22 @@ class RacePhenom:
 
     def efficiency(self) -> float:
         return self.optimal_length() / self.total_length()
+
+    def __str__(self):
+        string = ""
+        for slot in self.slots:
+            string += str(slot)
+            string += "\n"
+        return string
+
+    def json(self) -> dict:
+        data = dict()
+        for slot in self.slots:
+            data |= slot.categories_json()
+        return data
+
+    def json_pretty_str(self) -> str:
+        return json.dumps(self.json(), indent=4, sort_keys=True)
 
 
 def categories_start_times_overlapping(slots: List[Slot]) -> Set[frozenset]:

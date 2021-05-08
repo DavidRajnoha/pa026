@@ -7,7 +7,7 @@ from leap_ec.individual import Individual
 from source.ga import mutation, crossover
 
 
-def ga_pipeline(population: List[Individual], max_generation: int = 200) -> None:
+def ga_pipeline(population: List[Individual], max_generation: int = 200) -> List:
     """
     Ground logic of the genetic algorithm.
     Randomly initiates the population and then iteratively creates a new generation
@@ -17,13 +17,15 @@ def ga_pipeline(population: List[Individual], max_generation: int = 200) -> None
     :return:
     """
     population = Individual.evaluate_population(population)
+    best_individual: Individual = population[0]
 
     gen = 0
     while gen < max_generation:
         best_fitness = 10000
         sum_fitness = 0
         for individual in population:
-            best_fitness = min(best_fitness, individual.fitness)
+            best_individual = min(best_individual, individual, key=lambda x: x.fitness)
+            best_fitness = best_individual.fitness
             sum_fitness += individual.fitness
         average_fitness = sum_fitness / len(population)
         print("best: " + str(best_fitness) + ", average: " + str(average_fitness))
@@ -49,4 +51,5 @@ def ga_pipeline(population: List[Individual], max_generation: int = 200) -> None
         population = ops.truncation_selection(offspring, len(population), population)
 
         gen += 1
-    pass
+
+    return best_individual.genome

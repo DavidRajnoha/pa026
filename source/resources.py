@@ -141,6 +141,21 @@ class Slot:
         self.categories.append(category)
         self.entries_count += category.num_entries
 
+    def __str__(self):
+        string = " ### " * self.offset
+        for category in self.categories:
+            name = category.name[:4].rjust(4, " ")
+            string += (name + " " + (self.interval - 1) * " ### ") * category.num_entries
+        return string
+
+    def categories_json(self) -> dict:
+        data = dict()
+        for category in self.categories:
+            data[category.name] = {"entries": category.num_entries,
+                                   "first start": category.first_start_time,
+                                   "offset": self.offset}
+        return data
+
 
 @dataclass(order=True)
 class PrioritizedSlot:
@@ -156,7 +171,7 @@ class Race:
     Representation of the race
     Contains categories and empty slots, which define the conditions of the problem.
     """
-    def __init__(self, name, id, categories, interval, concurrent_slots_limit):
+    def __init__(self, name: str, id: str, categories: Dict[str, Category], interval: int, concurrent_slots_limit: int):
         self.name: str = name
         self.id: str = id
         self.categories: Dict[str, Category] = categories
@@ -166,7 +181,7 @@ class Race:
         self.slots: List[Slot] = self._create_slots(concurrent_slots_limit, interval)
 
     @staticmethod
-    def _create_slots(concurrent_slots_limit, interval) -> List[Slot]:
+    def _create_slots(concurrent_slots_limit: int, interval: int) -> List[Slot]:
         slots: List[Slot] = list()
         for minute in range(interval):
             for index in range(concurrent_slots_limit):
