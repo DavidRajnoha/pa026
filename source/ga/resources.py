@@ -194,6 +194,7 @@ class RaceProblem(Problem):
                     same_route_constrained_count += 1
 
             # same route is stricter than same first TODO: Maybe do this difference somewhere else
+            #
             same_first_categories = set(self.race.categories[category].same_first_constraint)\
                 .difference(same_route_categories)
 
