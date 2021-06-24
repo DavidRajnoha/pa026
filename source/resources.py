@@ -8,10 +8,11 @@ class Category:
     Contains the number of entries and the information related to the
     constraints on this category.
     """
-    def __init__(self, name: str, num_entries: int):
+    def __init__(self, name: str, num_entries: int, category_id: str = ""):
         self.name: str = name
         self.first_start_time: int = 0
         self.num_entries: int = num_entries
+        self.id: str = category_id
         self._same_first_constraint: List[Category] = list()
         self._same_route_constraint: List[Category] = list()
         self._same_time_request: List[Tuple[Category]] = list()

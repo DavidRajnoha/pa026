@@ -9,7 +9,7 @@ def cli():
 
 @click.command('schedule_categories')
 @click.option('--oris_id')
-@click.option('--course_definition')
+@click.option('--course_definition', default=None)
 @click.option('--same_start_req')
 @click.option('--specific_time_req')
 @click.option('--ignore_categories')

@@ -7,10 +7,10 @@ from leap_ec.individual import Individual
 from source.ga import mutation, crossover
 
 
-def ga_pipeline(population: List[Individual], max_generation: int = 200) -> List:
+def ga_pipeline(population: List[Individual], max_generation: int = 400) -> List:
     """
     Ground logic of the genetic algorithm.
-    Randomly initiates the population and then iteratively creates a new generation
+    Takes initial generation of parents and then iteratively creates a new generation
     of offsprings using mutations and crossovers and selects the best of offsprings and parents.
     :param population:
     :param max_generation:
@@ -21,9 +21,10 @@ def ga_pipeline(population: List[Individual], max_generation: int = 200) -> List
 
     gen = 0
     while gen < max_generation:
+        # TODO: Add a mechanism to stop after it converges
 
         best_individual, average_fitness = get_metrics(population, best_individual)
-        # print("best: " + str(best_fitness) + ", average: " + str(average_fitness))
+        print("best: " + str(best_individual.fitness) + ", average: " + str(average_fitness))
         # more mutations does not necessarily means better convergence, more then 2 mutations seem to be disruptive
         # to the information available in the solutions, 1 seems to be optimal for the initial converging with
         # an increase to 2 when the average fitness approaches the nest fitness

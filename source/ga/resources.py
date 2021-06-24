@@ -166,15 +166,11 @@ class RaceProblem(Problem):
         time_score = (1 - phenom.efficiency()) * 100
         time_req_score = self.evaluate_specific_time(phenom)
         same_start_req_score = self.evaluate_same_start_request(phenom) / 2
-        soft_constraints_score = time_score + time_req_score + same_start_req_score
+        soft_constraints_score = (time_score * 1.5) + time_req_score + same_start_req_score
 
-        # even 1 hard constraint has bigger weight then any combination of soft constraints
-        # the 100 limit is for better readability
-        hard_constr_coef = soft_constraints_score + 1 if soft_constraints_score > 100 else 100
+        hard_constraints_score = self.evaluate_hard_constraints(phenom) * 100
 
-        hard_constraints_score = self.evaluate_hard_constraints(phenom) * hard_constr_coef
-
-        return int(hard_constraints_score + time_score + soft_constraints_score)
+        return int(hard_constraints_score + soft_constraints_score)
 
     def evaluate_hard_constraints(self, phenom: RacePhenom) -> float:
         """
