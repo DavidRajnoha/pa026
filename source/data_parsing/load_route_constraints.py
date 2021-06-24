@@ -2,6 +2,9 @@ from source.resources import Category
 
 
 def add_constraints(race_categories: dict[str, Category], filename: str):
+    """
+    Adds the constraints specified in the passed file to the passed categories
+    """
     categories_by_first: dict[str, list[str]] = dict()
     with open(filename) as file:
         lines = file.readlines()
@@ -26,6 +29,9 @@ def add_constraints(race_categories: dict[str, Category], filename: str):
 
 
 def same_first_constraints(categories_by_first: dict[str, list[str]], race_categories: dict[str, Category]):
+    """
+    Identifies the categories starting with the same first control
+    """
     for first in categories_by_first:
         category_keys = categories_by_first[first]
         for category_key in category_keys:
@@ -42,6 +48,9 @@ def same_first_constraints(categories_by_first: dict[str, list[str]], race_categ
 
 
 def same_route_constraints(category_keys: list[str], race_categories: dict[str, Category]) -> None:
+    """
+    Identifies the categories with the same route
+    """
     for category_key in category_keys:
         if category_key not in race_categories:
             continue

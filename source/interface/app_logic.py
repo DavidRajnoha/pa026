@@ -14,6 +14,9 @@ from source.ga.resources import RaceDecoder, RacePhenom
 def create_race(oris_id: int, course_definition_f: Optional[str], same_start_req_f: Optional[str],
                 specific_time_req_f: Optional[str], ignore_categories: Set[str], interval: int,
                 concurrent_slots: int) -> Race:
+    """
+    Creates the race and parses the necessary data
+    """
     categories: Dict[str, Category] = load_entries(oris_id, ignore_categories)
     if course_definition_f is not None:
         add_constraints(categories, course_definition_f)
@@ -32,6 +35,10 @@ def create_race(oris_id: int, course_definition_f: Optional[str], same_start_req
 def schedule_categories(oris_id: int, course_definition_f: Optional[str], same_start_req_f: Optional[str],
                         specific_time_req_f: Optional[str], ignore_categories: Set[str], interval: int,
                         concurrent_slots: int, generation: int, initial_population: int):
+    """
+    Entry function, creates the race and tries to find the best schedule for that race, then prints the results
+    and saves them to files.
+    """
     race = create_race(oris_id, course_definition_f, same_start_req_f, specific_time_req_f, ignore_categories,
                        interval, concurrent_slots)
     best_json, best_pretty, best_phenom = best_schedule(race, generation, initial_population)
@@ -44,6 +51,9 @@ def schedule_categories(oris_id: int, course_definition_f: Optional[str], same_s
 
 
 def best_schedule(race: Race, generation: int, initial_population: int) -> Tuple[dict, str, RacePhenom]:
+    """
+    Tries to find the best schedule for the given race
+    """
     population = create_population(race, initial_population)
     best_genome = ga_pipeline(population, max_generation=generation)
     best_phenom = RaceDecoder(race).decode(best_genome)

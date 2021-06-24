@@ -2,16 +2,19 @@ import math
 from datetime import datetime
 from typing import Dict, Tuple, Set, List
 
-from source.data_parsing.oris_client import OrisClient
+from source.data_parsing.oris_client import OrisClient, OrisApiErrorException
 from source.resources import Category
 
 
 def load_entries(oris_race_id: int, ignore_categories: Set[str] = None) -> Dict[str, Category]:
+    """
+    Creates the categories for a given race based on entries from ORIS event.
+    """
     oris = OrisClient()
     data = oris.get(method="getEvent", id=oris_race_id)
 
     if data["Status"] != 'OK':
-        raise Exception()
+        raise OrisApiErrorException()
     categories_data = data['Data']['Classes']
 
     categories = dict()
@@ -28,6 +31,11 @@ def load_entries(oris_race_id: int, ignore_categories: Set[str] = None) -> Dict[
 
 
 def load_controls(category: Category):
+    """
+    Loads the course for the given category from ORIS splits.
+    NOTE: The splits are present only after the race is finished -
+    the function is used while testing the app on already finished races
+    """
     oris = OrisClient()
     control_codes = list()
 
@@ -43,6 +51,10 @@ def load_controls(category: Category):
 
 
 def load_interval(data) -> int:
+    """
+    The function tries to find the interval from the existing startlist.
+    NOTE: Used only on races with start lists already created
+    """
     data_keys = list(data.keys())
 
     entry1 = data[data_keys.pop(0)]
@@ -61,6 +73,11 @@ def load_interval(data) -> int:
 
 
 def load_ignored_categories(oris_race_id) -> Set[str]:
+    """
+    Loads the categories that have more then one competitor starting at the same time.
+    Therefore are these categories ignored in the schedule creation.
+    NOTE: Used only on races with start lists already created
+    """
     oris = OrisClient()
     data = oris.get(method="getEventStartLists", eventid=oris_race_id)['Data']
     if data == []:
@@ -87,6 +104,10 @@ def load_ignored_categories(oris_race_id) -> Set[str]:
 
 
 def load_concurrent_categories(data, ignored_categories: Set[str], interval: int) -> list[int]:
+    """
+    Loads the maximum number of categories that is starting at the same time
+    NOTE: Used only on races with start lists already created
+    """
     data_keys = list(data.keys())
     concurrent: Dict[int, Dict[int, int]] = dict()
     max_concurrent = list()
@@ -111,6 +132,10 @@ def load_concurrent_categories(data, ignored_categories: Set[str], interval: int
 
 
 def load_last_start(data) -> int:
+    """
+    Finds the time of the last starting individual in a oris start-list
+    NOTE: Used only on races with start lists already created
+    """
     times = math.inf, 0
 
     for key in data:
@@ -125,6 +150,10 @@ class InvalidDataException(Exception):
 
 
 def load_metadata(oris_race_id, ignored_categories: Set[str]) -> tuple[int, list[int], float, int, int]:
+    """
+    Loads the data about an existing race in ORIS.
+    NOTE: Used only on races with start lists already created
+    """
     oris = OrisClient()
     data = oris.get(method="getEventStartLists", eventid=oris_race_id)['Data']
     if data == []:
@@ -144,6 +173,9 @@ def load_metadata(oris_race_id, ignored_categories: Set[str]) -> tuple[int, list
 
 
 def load_ids(date_from, date_to, level="4", sport="1", ):
+    """
+    Get ids of races in oris in a given time frame
+    """
     oris = OrisClient()
     data = oris.get(method="getEventList", datefrom=date_from, dateto=date_to, level=level, sport=sport)['Data']
     ids = list()

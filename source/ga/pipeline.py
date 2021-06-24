@@ -21,16 +21,14 @@ def ga_pipeline(population: List[Individual], max_generation: int = 400) -> List
 
     gen = 0
     while gen < max_generation:
-        # TODO: Add a mechanism to stop after it converges
-
         best_individual, average_fitness = get_metrics(population, best_individual)
         print("best: " + str(best_individual.fitness) + ", average: " + str(average_fitness))
+
         # more mutations does not necessarily means better convergence, more then 2 mutations seem to be disruptive
         # to the information available in the solutions, 1 seems to be optimal for the initial converging with
         # an increase to 2 when the average fitness approaches the nest fitness
         # maybe try disruptive mutations on just part of the population, so part will have the good characteristics and
         # part will include change
-
         mutations_probability = 1 if best_individual.fitness < average_fitness else 2
 
         offspring = toolz.pipe(population,
@@ -50,6 +48,9 @@ def ga_pipeline(population: List[Individual], max_generation: int = 400) -> List
 
 
 def get_metrics(population: List[Individual], best_individual: Individual) -> Tuple[Individual, float]:
+    """
+    Returns the characteristics of the current population
+    """
     sum_fitness = 0
     for individual in population:
         best_individual = min(best_individual, individual, key=lambda x: x.fitness)

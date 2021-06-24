@@ -47,6 +47,13 @@ def order_crossover(g_fst: List[Any], g_snd: List[Any]) -> Tuple[List[Any], List
 
 
 def get_cycles(g_fst: List[Any], g_snd: List[Any]) -> List[List[int]]:
+    """
+    Identifies the cycles in the given two genomes
+    :param g_fst: first genome
+    :param g_snd: second genome
+    :return: the cycles, represented as a list of lists, where the inner
+    lists correspond to the cycles (containing the positions of the elements)
+    """
     in_cycle: Set[int] = set()
     cycles: List[List[int]] = list()
     for index, elem in enumerate(g_fst):

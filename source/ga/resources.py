@@ -98,7 +98,6 @@ def categories_start_times_overlapping(slots: List[Slot]) -> Set[frozenset]:
         next_slot: Slot = priority_slots.get().slot
 
         if next_slot.prev_category is not None and next_slot.prev_category in current_categories:
-            # TODO: investigate the problem with the second condition
             current_categories.remove(next_slot.prev_category)
 
         if next_slot.category is None:
@@ -162,7 +161,6 @@ class RaceProblem(Problem):
         Returns the evaluation for the given phenom
         The evaluation is based by the count of route constraints and first constraints
         """
-        # time_score = 0
         time_score = (1 - phenom.efficiency()) * 100
         time_req_score = self.evaluate_specific_time(phenom)
         same_start_req_score = self.evaluate_same_start_request(phenom) / 2
@@ -189,8 +187,7 @@ class RaceProblem(Problem):
                               same_route_category}) in same_route_constrained:
                     same_route_constrained_count += 1
 
-            # same route is stricter than same first TODO: Maybe do this difference somewhere else
-            #
+            # same route is stricter than same first
             same_first_categories = set(self.race.categories[category].same_first_constraint)\
                 .difference(same_route_categories)
 
@@ -272,7 +269,6 @@ class RaceDecoder(Decoder):
             if isinstance(chromosome, int):
                 slot = slots_iter.__next__()
             elif isinstance(chromosome, Category):
-                # TODO: Change to category name and lookup in dict, possible numpy usage
                 category: Category = chromosome
                 category.first_start_time = slot.length_better()
                 slot.append(category)

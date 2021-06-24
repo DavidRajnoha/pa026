@@ -2,6 +2,9 @@ from source.resources import Category
 
 
 def load_time_requests(race_categories: dict[str, Category], filename: str):
+    """
+    Loads the requests to start at the same time and adds them to the passed categories
+    """
     with open(filename) as file:
         lines = file.readlines()
         for line in lines:
@@ -18,6 +21,9 @@ def load_time_requests(race_categories: dict[str, Category], filename: str):
 
 
 def load_same_start_requests(race_categories: dict[str, Category], filename: str):
+    """
+    Loads the requests to start at a specific time and adds them to the passed categories
+    """
     with open(filename) as file:
         lines = file.readlines()
         for line in lines:

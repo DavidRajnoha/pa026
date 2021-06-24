@@ -4,6 +4,10 @@ from source.resources import Category
 
 
 def add_oris_constraints(categories) -> None:
+    """
+    Adds the constraints based on the course definitions queried from ORIS.
+    To querying of the course definitions is possible only on already finished races
+    """
     categories_by_first = dict()
     categories_by_route = dict()
     for category in categories:
